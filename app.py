@@ -9,7 +9,10 @@ def api_get():
         response = requests.get(users_url)
 
         if response.status_code == 200:
-            return jsonify(response.json()) 
+            users = response.json()
+            return jsonify({"address": user["address"]
+                            for user in users
+                            }), response.status_code
         else:
             return jsonify({"message": "Failed to fetch data"}), response.status_code
     except Exception as e:

@@ -2,6 +2,7 @@ from flask import Flask, jsonify, Blueprint
 import requests
 import random
 import logging
+from config.cache_config import cache
 from transformers import pipeline
 from tensorflow.keras.backend import clear_session
 from requests.exceptions import RequestException
@@ -20,6 +21,7 @@ get_study = Blueprint("fetch_result", __name__)
 title_generator = pipeline("text2text-generation", model="google/flan-t5-large")
 
 @get_study.route('/api_get', methods=['GET'])
+@cache.cached(timeout=10)  # Cache the result for 30 secs
 def fetch_result():
     try:
         thesis_title = generate_thesis_title()

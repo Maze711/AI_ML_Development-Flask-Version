@@ -1,9 +1,17 @@
 from flask import Flask, jsonify, Blueprint
 import requests
 import random
+import logging
 from transformers import pipeline
 from tensorflow.keras.backend import clear_session
 from requests.exceptions import RequestException
+
+logging.basicConfig(
+    filename='app.log',
+    level=logging.ERROR,
+    format='%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s',
+    filemode='w'
+    )
 
 # Flask Blueprint
 get_study = Blueprint("fetch_result", __name__)
@@ -23,6 +31,7 @@ def fetch_result():
         })
     
     except Exception as e:
+        logging.error(f"Error generating thesis title: {e}")
         return jsonify({"message": f"Error: {str(e)}"}), 500
 
 def generate_thesis_title():
@@ -47,7 +56,7 @@ def generate_thesis_title():
         return result[0].get('generated_text', 'No title generated').strip()
 
     except Exception as e:
-        print(f"Error generating thesis title: {e}")
+        logging.error(f"Error generating thesis title: {e}")
         return "Title generation failed"
 
 def fetch_related_rrls(thesis_title, per_page=5):
@@ -77,5 +86,5 @@ def fetch_related_rrls(thesis_title, per_page=5):
         return related_rrls
 
     except RequestException as e:
-        print(f"Error fetching RRLs: {e}")  # Log errors for debugging
+        logging.error(f"Error fetching RRLs: {e}")  # Log errors for debugging
         return []
